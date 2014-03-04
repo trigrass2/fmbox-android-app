@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>FmBox</title>
+
+    <style>
+      @font-face {
+        font-family: 'text';
+        src: url('fonts/fangzheng.TTF') format('truetype');
+      }
+      @font-face {
+        font-family: 'btns';
+        src: url('fonts/btns.ttf') format('truetype');
+      }
+      body {
+        font-family: 'text';
+        font-size: 14pt;
+        color: #666;
+        margin: 0;
+        padding: 0;
+      }
+      p {
+        margin: 0;
+      }
+      .item {
+        position: relative;
+      }
+      .item .left { 
+        text-align: center;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 20pt;
+      }
+      .item .right {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        width: 30pt;
+      }
+      .item span {
+        margin: 0;
+      }
+      .item .middle { 
+         margin: 0pt 30pt 0pt 20pt;
+      }
+      .item .light {
+        color: #eee;
+      }
+      .item .dark {
+        color: #000;
+        float: right;
+      }
+      .title-bar {
+        position: relative;
+        text-align: center;
+        margin-top: 10pt;
+      }
+      .title-bar button {
+        height: 20pt;
+        font-size: 8pt;
+      }
+      .title-bar .left {
+        position: absolute;
+        top: 0px;
+        left: 5px;
+        width: 60pt;
+      }
+      .title-bar .right {
+        position: absolute;
+        top: 0px;
+        right: 5pt;
+        width: 60pt;
+      }
+      .title-bar .mid {
+        /*margin-right: 30pt;*/
+        line-height: 20pt;
+      }
+      footer {
+        bottom: 0;
+        position: fixed;
+        width: 100%;
+        height: 50pt;
+      }
+      footer hr {
+        margin: 0;
+      }
+      .footer-item {
+        border-right: 1px solid gray;
+        width: 33%;
+        height: 100%;
+        float: left;
+        text-align: center;
+      }
+      .footer-item {
+      }
+      .footer-item .footer-text {
+        margin-top: 10pt;
+      }
+      .footer-item-sel {
+        background-color: gray;
+        color: white;
+      }
+      .footer-item-right {
+        border-right: none;
+      }
+      .footer-nav {
+        display: inline;
+      }
+
+      #connecting-panel {
+        display: block;
+      }
+      #fm-play-panel {
+        display: none;
+      }
+      #wifi-panel {
+        display: block;
+      }
+      #play-panel {
+        display: none;
+      }
+      #login-panel {
+        display: none;
+      }
+
+      .form-panel button {
+        margin: 0;
+        width: 100%;
+        height: 20pt;
+      }
+      .form-panel input {
+        width: 100%;
+        height: 20pt;
+        margin: 0;
+      }
+      .form-panel select {
+        margin: 0;
+        height: 20pt;
+      }
+      .form-panel {
+        margin: 0 10pt 0 10pt;
+      }
+
+      #login-panel-input {
+        display: block;
+      }
+      #login-panel-already {
+        display: none;
+      }
+
+      #play-panel-no-song {
+        display: block;
+      }
+      #play-panel-album {
+        display: none;
+      }
+      #play-panel img {
+        height: 200pt;
+      }
+      #play-panel-chan-select {
+      }
+      #play-panel-chan {
+        padding: 5pt;
+      }
+      #play-panel .album-info p {
+        margin: 0 auto;
+        text-align: center;
+      }
+      #play-panel .album-info .p2 {
+        font-size: 11pt;
+      }
+      #play-panel .btns span {
+        font-family: 'btns';
+        padding: 5pt;
+        width: 60pt;
+      }
+      #play-panel .btns {
+        text-align: center;
+        margin: 0 auto;
+        margin-top: 8pt;
+        width: 70%;
+        font-size: 40pt;
+      }
+
+      #album-info-img {
+        margin: 0 auto;
+        height: 300px;
+      }
+      .album-img-wrapper {
+        margin-top: 10pt;
+        margin-bottom: 10pt;
+         text-align:center;
+        width: 100%;
+        height: auto;
+      }
+      .red {
+        color: red;
+      }
+
+      #wifi-panel-list {
+        display: block;
+      }
+      #wifi-panel-add {
+        display: none;
+      }
+
+      #connecting-panel-reconnect {
+        display: none;
+      }
+
+      #connecting-panel .mid {
+        margin: 0 auto;
+        text-align: center;
+        margin-top: 60%;
+      }
+
+      #refresh-btn {
+        display: none;
+      }
+
+    </style>
+    
+    <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="cordova.js"></script>
+  </head>
+
+  <body>
+
+    <div id="fm-play-panel">
+
+      <div id="wifi-panel">
+
+        <div id="wifi-panel-list">
+          <div class="title-bar" >
+            <div id="wifi-panel-title" class="mid">无线连接</div>
+            <div class="right">
+              <button id="refresh-btn">刷新</button>
+            </div>
+          </div>
+          <hr>
+          <div class="list">
+          </div>
+        </div>
+
+        <div id="wifi-panel-add">
+          <div class="title-bar" >
+            <div class="left">
+              <button onclick="onclick_wifi_add_back();"><返回</button>
+            </div>
+            <div class="mid">连接到</div>
+          </div>
+           <hr>
+          <div class="form-panel">
+            <input id="wifi-add-ssid" placeholder="SSID" type="text"></input>
+            <select id="wifi-add-keymgmt">
+              <option value="">无加密</option>
+              <option value="WPA-PSK">WPA-PSK 加密</option>
+              <option value="WEP">WEP 加密</option>
+            </select>
+             <input id="wifi-add-key" placeholder="密码" type="password"></input>
+           <button id="wifi-add-btn-conn" onclick="onclick_wifi_add_conn();">连接</button>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="play-panel" style="position: relative">
+        <div id="play-panel-no-song">
+        </div>
+        <div id="play-panel-album">
+          <div id="play-panel-chan">
+            <select id="play-panel-chan-select">
+            </select>
+          </div>
+          <div class="album-img-wrapper"><img id="album-info-img"></img></div>
+          <div class="album-info">
+            <p id="album-info-artist">The XX</p>
+            <p id="album-info-song-title" class="p2">Intro</p>
+            <div class="btns">
+              <span onclick="onclick_song_like();" id="album-info-btn-like" >A</span>
+              <span onclick="onclick_song_trash();">B</span>
+              <span onclick="onclick_song_next();">C</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="login-panel">
+        <div class="title-bar" >
+          <div class="title">登录豆瓣电台</div>
+        </div>
+        <hr>
+        <div id="login-panel-already">
+          <p>当前账号</p>
+          <p id="login-panel-cur-email"></p>
+          <button id="logout-btn" onclick="fm_logout();">退出</button>
+        </div>
+        <div id="login-panel-input">
+          <div class="form-panel">
+            <input id="login-email" placeholder="邮箱" type="text"></input>
+            <input id="login-pass" placeholder="密码" type="password"></input>
+            <button id="login-btn" onclick="fm_login();">登录</button>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <hr>
+        <div class="footer-nav">
+          <div panel="wifi-panel"  class="footer-item footer-item-sel">
+            <div class="footer-text">无线连接</div>
+          </div>
+          <div panel="play-panel" class="footer-item ">
+            <div class="footer-text">播放</div>
+          </div>
+          <div panel="login-panel" class="footer-item footer-item-right">
+            <div class="footer-text">账号</div>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+
+    <div id="connecting-panel">
+      <div class="mid">
+        <div id="connecting-panel-text">蓝牙连接设备中...</div>
+        <div id="connecting-panel-reconnect">
+          <button onclick='onclick_reconnect();'>重新连接</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var apicall;
+      var websocket;
+      var channel;
+
+      var str_device_connecting = $('#connecting-panel-text').html();
+
+      setInterval(function () {
+        for (var id in reqpool) {
+          var req = reqpool[id];
+          var now = (new Date()).getTime()/1000;
+          if (now - req.ts > 20) {
+            req.callback({r:1, err:'timeout'});
+            delete reqpool[id];
+          }
+        }
+      }, 1000);
+
+      var reqpool = {};
+      var onmessage = function (line) {
+        console.log("recv:" + line);
+        try {
+          var r = JSON.parse(line);
+          var args = reqpool[r.id];
+          if (args) {
+            if (args.callback)
+              args.callback(r);
+            delete reqpool[r.id];
+          }
+          onmessage_callback(r);
+        } catch (e) {
+          console.log(e);
+        }
+        if (line == 'BlueToothConnceted') {
+          $('#connecting-panel').hide();
+          $('#fm-play-panel').show();
+          onload();
+        }
+        if (line == 'BlueToothConnectFailed') {
+          $('#connecting-panel-text').html('连接失败。请检查蓝牙是否开启，以及设备是否已经配对成功');
+          $('#connecting-panel-reconnect').show();
+        }
+      };
+
+      var onclose = function () {
+      };
+      
+      console.log('starts: ' + navigator.userAgent);
+
+      // local test UI
+      if (navigator.userAgent.indexOf("Windows", 0) != -1) {
+        $('#wifi-panel').hide();
+        //$('#wifi-panel-list').hide();
+        //$('#wifi-panel-add').show();
+        $('#play-panel').show();
+        $('#play-panel-no-song').hide();
+        $('#play-panel-album').show();
+        $('#connecting-panel').hide();
+        $('#fm-play-panel').show();
+      }
+
+      function apicall (args, callback) {
+        var str;
+        if (typeof args == 'string') {
+          str = args;
+        } else {
+          args.id = Math.ceil(Math.random()*1e8);
+          args.ts = (new Date()).getTime()/1000;
+          str = JSON.stringify(args);
+          if (callback) {
+            args.callback = callback;
+            reqpool[args.id] = args;
+          }
+        }
+        cordova.exec(null, null, "CustomPlugin", "send", [str]);
+      }
+
+      document.addEventListener("deviceready", function () {
+        cordova.exec(onmessage, null, "CustomPlugin", "start", []);
+        apicall('bluetoothScan');
+      }, false);
+
+      function ui_set_song_like(like) {
+        if (like)
+          $('#album-info-btn-like').addClass('red');
+        else
+          $('#album-info-btn-like').removeClass('red');
+      }
+
+      function ui_set_channel(chan) {
+        $('#play-panel-chan-select').find('option[value="'+chan+'"]').prop('selected', true);
+      }
+
+      function update_album_view (song) {
+        $('#play-panel-no-song').hide();
+        $('#play-panel-album').show();
+        $('#album-info-artist').html(song.artist);
+        $('#album-info-song-title').html(song.title);
+        $('#album-info-img').attr('src', song.picture);
+        ui_set_song_like(song.like);
+      };
+
+      function onmessage_callback (r) {
+        console.log("onmessage_callback", r);
+        if (r.op == 'SongLoad') {
+          update_album_view(r.song);
+          channel = r.channel;
+          ui_set_channel(r.channel);
+        }
+        if (r.op == 'SongLike') {
+          ui_set_song_like(r.like);
+        }
+      };
+
+      function onclick_reconnect() {
+        $('#connecting-panel-text').html(str_device_connecting);
+        $('#connecting-panel-reconnect').hide();
+      }
+
+      function onclick_song_like() {
+        apicall({op:'FmLike'});
+        $('#album-info-btn-like').toggleClass('red');
+      }
+
+      function onclick_song_next() {
+        apicall({op:'FmNext'});
+      }
+
+      function onclick_song_trash() {
+        apicall({op:'FmTrash'});
+      }
+
+      function onclick_wifi_add_back() {
+        $('#wifi-panel-add').hide();
+        $('#wifi-panel-list').show();
+      }
+
+      function onclick_wifi_add() {
+        $('#wifi-add-ssid').val('');
+        $('#wifi-add-key').val('');
+        $('#wifi-add-keymgmt').val('');
+        $('#wifi-panel-list').hide();
+        $('#wifi-panel-add').show();
+        $('#wifi-add-btn-conn').prop('disabled', false);
+        $('#wifi-add-btn-conn').html('连接');
+      }
+
+      function onclick_wifi_add_conn() {
+        var ssid = $('#wifi-add-ssid').val();
+        var KeyMgmt = $('#wifi-add-keymgmt').val();
+        var key = $('#wifi-add-key').val();
+        $('#wifi-add-btn-conn').prop('disabled', true);
+        $('#wifi-add-btn-conn').html('连接中..');
+        apicall({
+          op: 'WifiConnect',
+          Ssid: ssid, KeyMgmt: KeyMgmt, Key: key,
+          ScanSsid: true}, 
+          function (r) {
+            if (r.r == 0) {
+              alert('连接成功');
+            } else {
+              alert('连接失败');
+            }
+            $('#wifi-panel-add').hide();
+            $('#wifi-panel-list').show();
+            if (r.r == 0) {
+              do_wifi_scan('WifiScanResults');
+            }
+          }
+        );
+      }
+
+      function do_wifi_scan(op, callback) {
+        $('#wifi-panel-title').html('搜索中...');
+        var widget = $('.list')[0];
+        widget.innerHTML = '';
+        
+        apicall({'op':op}, function (r) {
+
+          console.log('WifiScan: result', r);
+          $('#wifi-panel-title').html('无线连接');
+          var list = r.list;
+          if (list) {
+            console.log('WifiScan: total', list.length);
+            for (var i in list) {
+              if (list[i].Ssid == '')
+                continue;
+
+              var w_item = document.createElement('div');
+              w_item.setAttribute('class', 'item');
+
+              var w_left = document.createElement('div');
+              w_left.setAttribute('class', 'left');
+
+              if (list[i].Stat == 'COMPLETED') {
+                w_left.setAttribute('class', 'left selected');
+                w_left.innerHTML = '&#10004;';
+              }
+
+              var w_mid = document.createElement('div');
+              w_mid.setAttribute('class', 'middle');
+              w_mid.innerHTML = list[i].Ssid + 
+                  '<span class="dark">' + list[i].SignalLevel + 
+                  '</span>';
+
+              (function (w_left, w_mid, network) {
+                w_mid.onclick = function () {
+                  var r = {
+                    'op':'WifiConnect',
+                    'Ssid':network.Ssid, 'Bssid':network.Bssid,
+                  };
+                  if (!network.Config) {
+                    r.Key = prompt('请输入密码');
+                    if (!r.Key) {
+                      return;
+                    }
+                    r.KeyMgmt = network.KeyMgmt;
+                    r.SetConfig = true;
+                  }
+                  $('.selected').html('');
+                  w_left.innerHTML = '>';
+                  w_left.setAttribute('class', 'left selected');
+                  $('#wifi-panel-title').html('连接中...');
+                  
+                  apicall(r, function (r) {
+                    console.log('WifiConnect:', "result", r);
+                    if (!r.r) {
+                      $('#wifi-panel-title').html('已连接');
+                      w_left.innerHTML = '&#10004;';
+                    } else {
+                      alert('连接失败');
+                      $('#wifi-panel-title').html('无线连接');
+                      w_left.innerHTML = '';
+                    }
+                  });
+                };
+              })(w_left, w_mid, list[i]);
+
+              w_item.appendChild(w_left);
+              w_item.appendChild(w_mid);
+
+              widget.appendChild(w_item);
+            }
+          }
+
+          var w_item = document.createElement('div');
+          w_item.setAttribute('class', 'item');
+          w_item.innerHTML = '<div class="left"></div>' + 
+                '<div class="middle" onclick="onclick_wifi_add();">添加...</div>';
+          widget.appendChild(w_item);
+
+          callback(r);
+        });
+      }
+
+      function ui_set_already_login(email) {
+        $('#login-panel-input').hide();
+        $('#login-panel-already').show();
+        $('#login-panel-cur-email').html(email);
+      }
+
+      function fm_login() {
+        $('#login-btn').html('登录中...').prop('disabled', true);
+        var email = $('#login-email').val();
+        var pass = $('#login-pass').val();
+        apicall({'op':'FmLogin', 'Email':email, 'Password':pass}, function (r) {
+          if (r.r == 1) {
+            alert('登录失败');
+            $('#login-btn').html('登录').prop('disabled', false);
+          } else {
+            ui_set_already_login(email);
+          }
+        });
+      }
+
+      function fm_logout() {
+        apicall({'op':'FmLogout'});
+        $('#login-panel-already').hide();
+        $('#login-panel-input').show();
+      }
+
+      function bt_send_hello() {
+        apicall({'op':'Hello'});
+      }
+
+      function onload() {
+        $('#play-panel-chan-select').change(function () {
+          apicall({op: 'FmSetChan', channel: $(this).val()});
+        });
+        apicall({op: 'FmChanList'}, function (r) {
+          var select = $('#play-panel-chan-select')[0];
+          select.innerHTML = '';
+          for (var i in r.list) {
+            var option = document.createElement('option');
+            option.setAttribute('value', r.list[i].channel_id);
+            option.innerHTML = r.list[i].name;
+            select.appendChild(option);
+          }
+          ui_set_channel(channel);
+        });
+        $('.footer-item').click(function () {
+          var old = $('.footer-item-sel');
+          $('#'+old.attr('panel')).css('display', 'none');
+          old.removeClass('footer-item-sel');
+          $(this).addClass('footer-item-sel');
+          $('#'+$(this).attr('panel')).css('display', 'block');
+        });
+        $('#refresh-btn').click(function () {
+          $('#refresh-btn').hide();
+          do_wifi_scan('WifiScan', function () {
+            $('#refresh-btn').show();
+          });
+        });
+        do_wifi_scan('WifiScanResults', function () {
+          $('#refresh-btn').show();
+        });
+        apicall({op: "FmStat"}, function (r) {
+          if (r.email) 
+            ui_set_already_login(r.email);
+          if (r.song)
+            update_album_view(r.song);
+        });
+        setInterval(bt_send_hello, 3000);
+      }
+
+    </script>
+
+  </body>
+</html>
