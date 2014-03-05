@@ -13,6 +13,10 @@
         font-family: 'btns';
         src: url('fonts/btns.ttf') format('truetype');
       }
+      @font-face {
+        font-family: 'wifi-btns';
+        src: url('fonts/wifi-btns.ttf') format('truetype');
+      }
       body {
         font-family: 'text';
         font-size: 14pt;
@@ -43,14 +47,14 @@
         margin: 0;
       }
       .item .middle { 
-         margin: 0pt 30pt 0pt 20pt;
+         margin: 0pt 40pt 0pt 20pt;
       }
       .item .light {
         color: #eee;
       }
-      .item .dark {
-        color: #000;
-        float: right;
+      .wifi-signal-text {
+        font-family: 'wifi-btns';
+        font-size: 20pt;
       }
       .title-bar {
         position: relative;
@@ -96,7 +100,14 @@
       .footer-item {
       }
       .footer-item .footer-text {
-        margin-top: 10pt;
+        margin-top: 0pt;
+      }
+      .footer-item .footer-text .logo {
+        font-family: 'btns';
+        font-size: 30pt;
+      }
+      .footer-item .footer-text .text {
+        font-size: 10pt;
       }
       .footer-item-sel {
         background-color: gray;
@@ -310,13 +321,22 @@
         <hr>
         <div class="footer-nav">
           <div panel="wifi-panel"  class="footer-item footer-item-sel">
-            <div class="footer-text">无线连接</div>
+            <div class="footer-text">
+              <p class="logo">D</p>
+              <p class="text">无线连接</p>
+            </div>
           </div>
           <div panel="play-panel" class="footer-item ">
-            <div class="footer-text">播放</div>
+            <div class="footer-text">
+              <p class="logo">E</p>
+              <p class="text">播放</p>
+            </div>
           </div>
           <div panel="login-panel" class="footer-item footer-item-right">
-            <div class="footer-text">账号</div>
+            <div class="footer-text">
+              <p class="logo">F</p>
+              <p class="text">账号</p>
+            </div>
           </div>
         </div>
       </footer>
@@ -383,14 +403,17 @@
 
       // local test UI
       if (navigator.userAgent.indexOf("Windows", 0) != -1) {
-        $('#wifi-panel').hide();
-        //$('#wifi-panel-list').hide();
-        //$('#wifi-panel-add').show();
-        $('#play-panel').show();
-        $('#play-panel-no-song').hide();
-        $('#play-panel-album').show();
-        $('#connecting-panel').hide();
-        $('#fm-play-panel').show();
+        setTimeout(function () {
+          //$('#wifi-panel').hide();
+          //$('#wifi-panel-list').hide();
+          //$('#wifi-panel-add').show();
+          //$('#play-panel').show();
+          //$('#play-panel-no-song').hide();
+          //$('#play-panel-album').show();
+          //$('#connecting-panel').hide();
+          $('#fm-play-panel').show();
+          ui_set_wifi_list([{Ssid:"123", Stat:'COMPLETED', SignalLevel:-40}]);
+        }, 200);
       }
 
       function apicall (args, callback) {
@@ -504,85 +527,95 @@
         );
       }
 
-      function do_wifi_scan(op, callback) {
-        $('#wifi-panel-title').html('搜索中...');
+      function ui_set_wifi_list(list) {
+        if (!list)
+          return ;
+
         var widget = $('.list')[0];
         widget.innerHTML = '';
-        
-        apicall({'op':op}, function (r) {
 
-          console.log('WifiScan: result', r);
-          $('#wifi-panel-title').html('无线连接');
-          var list = r.list;
-          if (list) {
-            console.log('WifiScan: total', list.length);
-            for (var i in list) {
-              if (list[i].Ssid == '')
-                continue;
-
-              var w_item = document.createElement('div');
-              w_item.setAttribute('class', 'item');
-
-              var w_left = document.createElement('div');
-              w_left.setAttribute('class', 'left');
-
-              if (list[i].Stat == 'COMPLETED') {
-                w_left.setAttribute('class', 'left selected');
-                w_left.innerHTML = '&#10004;';
-              }
-
-              var w_mid = document.createElement('div');
-              w_mid.setAttribute('class', 'middle');
-              w_mid.innerHTML = list[i].Ssid + 
-                  '<span class="dark">' + list[i].SignalLevel + 
-                  '</span>';
-
-              (function (w_left, w_mid, network) {
-                w_mid.onclick = function () {
-                  var r = {
-                    'op':'WifiConnect',
-                    'Ssid':network.Ssid, 'Bssid':network.Bssid,
-                  };
-                  if (!network.Config) {
-                    r.Key = prompt('请输入密码');
-                    if (!r.Key) {
-                      return;
-                    }
-                    r.KeyMgmt = network.KeyMgmt;
-                    r.SetConfig = true;
-                  }
-                  $('.selected').html('');
-                  w_left.innerHTML = '>';
-                  w_left.setAttribute('class', 'left selected');
-                  $('#wifi-panel-title').html('连接中...');
-                  
-                  apicall(r, function (r) {
-                    console.log('WifiConnect:', "result", r);
-                    if (!r.r) {
-                      $('#wifi-panel-title').html('已连接');
-                      w_left.innerHTML = '&#10004;';
-                    } else {
-                      alert('连接失败');
-                      $('#wifi-panel-title').html('无线连接');
-                      w_left.innerHTML = '';
-                    }
-                  });
-                };
-              })(w_left, w_mid, list[i]);
-
-              w_item.appendChild(w_left);
-              w_item.appendChild(w_mid);
-
-              widget.appendChild(w_item);
-            }
-          }
+        console.log('WifiScan: total', list.length);
+        for (var i in list) {
+          
+          if (list[i].Ssid == '')
+            continue;
 
           var w_item = document.createElement('div');
           w_item.setAttribute('class', 'item');
-          w_item.innerHTML = '<div class="left"></div>' + 
-                '<div class="middle" onclick="onclick_wifi_add();">添加...</div>';
-          widget.appendChild(w_item);
 
+          var w_left = document.createElement('div');
+          w_left.setAttribute('class', 'left');
+
+          if (list[i].Stat == 'COMPLETED') {
+            w_left.setAttribute('class', 'left selected');
+            w_left.innerHTML = '&#10004;';
+          }
+
+          var w_mid = document.createElement('div');
+          w_mid.setAttribute('class', 'middle');
+
+          var sig = '0';
+          if (list[i].SignalLevel > -66) {
+            sig = '1';
+          } 
+          if (list[i].SignalLevel > -33) {
+            sig = '2';
+          }
+          w_mid.innerHTML = '<span class="wifi-signal-text">' + sig + '</span>' + list[i].Ssid;
+
+          (function (w_left, w_mid, network) {
+            w_mid.onclick = function () {
+              var r = {
+                'op':'WifiConnect',
+                'Ssid':network.Ssid, 'Bssid':network.Bssid,
+              };
+              if (!network.Config) {
+                r.Key = prompt('请输入密码');
+                if (!r.Key) {
+                  return;
+                }
+                r.KeyMgmt = network.KeyMgmt;
+                r.SetConfig = true;
+              }
+              $('.selected').html('');
+              w_left.innerHTML = '>';
+              w_left.setAttribute('class', 'left selected');
+              $('#wifi-panel-title').html('连接中...');
+              
+              apicall(r, function (r) {
+                console.log('WifiConnect:', "result", r);
+                if (!r.r) {
+                  $('#wifi-panel-title').html('已连接');
+                  w_left.innerHTML = '&#10004;';
+                } else {
+                  alert('连接失败');
+                  $('#wifi-panel-title').html('无线连接');
+                  w_left.innerHTML = '';
+                }
+              });
+            };
+          })(w_left, w_mid, list[i]);
+
+          w_item.appendChild(w_left);
+          w_item.appendChild(w_mid);
+
+          widget.appendChild(w_item);
+        }
+
+        var w_item = document.createElement('div');
+        w_item.setAttribute('class', 'item');
+        w_item.innerHTML = '<div class="left"></div>' + 
+              '<div class="middle" onclick="onclick_wifi_add();">添加...</div>';
+        widget.appendChild(w_item);
+      }
+
+      function do_wifi_scan(op, callback) {
+        $('#wifi-panel-title').html('搜索中...');
+        $('.list').html('');
+        apicall({'op':op}, function (r) {
+          console.log('WifiScan: result', r);
+          $('#wifi-panel-title').html('无线连接');
+          ui_set_wifi_list(r.list);
           callback(r);
         });
       }
